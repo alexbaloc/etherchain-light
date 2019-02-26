@@ -69,7 +69,7 @@ router.post('/verify', function(req, res, next) {
       var outputName = tmp.tmpNameSync();
       var solcCommand = "node ./utils/compile.js " + tmpName + " " + outputName;
       
-      var data = { source: contractSource, optimize: optimize, compilerVersion: compilerVersion };
+      var data = { source: contractSource, optimize: optimize, compilerVersion: compilerVersion, name: contractName};
       console.log(solcCommand);
       
       fs.writeFileSync(tmpName, JSON.stringify(data) , 'utf-8');
@@ -100,9 +100,14 @@ router.post('/verify', function(req, res, next) {
         var abi = "";
         for (var contract in data.contracts) {
           if (contract === ":" + contractName || contract === contractName) {
-            contractBytecode = "0x" + data.contracts[contract].bytecode;
-            abi = data.contracts[contract].interface;
+            contractBytecode = "0x" + data.contracts[contract][contract].evm.bytecode.object;
+            abi = JSON.stringify(data.contracts[contract][contract].abi);
           }
+        }
+
+        if (!abi || !contractBytecode) {
+          callback("Cannot find contract in compilation output", null);
+          return;
         }
         
         // Remove swarm hash

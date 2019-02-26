@@ -50,16 +50,38 @@ try {
 }
 
 console.log("Optimize:", data.optimize);
+console.log("Version:", data.compilerVersion);
+console.log("Contract name:", data.name);
+
+//See reference for standard input/output here: https://solidity.readthedocs.io/en/v0.5.0/using-the-compiler.html#compiler-input-and-output-json-description
+var input = {
+  language: 'Solidity',
+  sources: {},
+  settings: {
+    optimizer: {
+      enabled: data.optimize,
+    },
+    outputSelection: {
+        '*': {
+            '*': [ '*' ]
+        }
+    }
+  }
+}
+
+input.sources[data.name] = {
+  content: data.source
+}
 
 var output = {}
 if (data.compilerVersion) {
   var solcVersion = solc.setupMethods(require("./solc-bin/bin/" + data.compilerVersion))
-  output = solcVersion.compile(data.source, data.optimize ? 1 : 0);
-  // console.log(JSON.stringify(output));
+  output = solcVersion.compile(JSON.stringify(input));
+  console.log("finished: ", JSON.parse(output));
 } else {
-  output = solc.compile(data.source, data.optimize ? 1 : 0);
+  output = solc.compile(data.source);
 }
 
-fs.writeFileSync(files[1], JSON.stringify(output) , 'utf-8');
+fs.writeFileSync(files[1], output , 'utf-8');
 
 process.exit();
