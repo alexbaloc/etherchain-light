@@ -19,7 +19,7 @@ router.post('/verify', function(req, res, next) {
   var web3 = new Web3();
   web3.setProvider(config.provider);
   
-  var contractAddress = req.body.contractAddress.toLowerCase();
+  var contractAddress = req.body.contractAddress ? req.body.contractAddress.toLowerCase() : null;
   var contractName = req.body.contractName;
   var contractSource = req.body.contractSource;
   var compilerVersion = req.body.compilerVersion;
